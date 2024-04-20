@@ -10,6 +10,12 @@ url = st.text_input("Enter Youtube URL")
 if url is not '':
     df = preprocess.preprocess(url=url)
     if(type(df)== pd.core.frame.DataFrame):
+        # Video details and comments
+        st.markdown(helper.video_info_markdown(data = preprocess.get_video_info(url=url)), unsafe_allow_html = True)
+
+        #Total no of comments
+        st.markdown('## Total Comments : ' + str(len(df)))
+
 
         #Wordcloud
         st.header('Wordcloud')
@@ -18,9 +24,25 @@ if url is not '':
         ax.imshow(df_wc)
         st.pyplot(fig)
 
-        # Dataframe
-        st.header('Data Frame')
-        st.dataframe(df)
+        #Most common words
+        st.header('Most common words')
+        df_common = helper.most_common_words(df=df)[::-1]
+        fig, ax = plt.subplots()
+        ax.barh(df_common[0], df_common[1], color = 'red')
+        st.pyplot(fig)
+
+        #Timeline
+        st.header('Timeline')
+        timeline_df = helper.timeline(df=df)
+        n = len(timeline_df['yearMonth']) // 10
+        fig, ax = plt.subplots()
+        ax.plot(timeline_df['yearMonth'], timeline_df['comment_text'])
+        if n == 0:
+            plt.xticks(rotation = 'vertical')
+        else:
+            plt.xticks(timeline_df['yearMonth'][::n],rotation = 'vertical')
+        st.pyplot(fig)
+
 
 
 

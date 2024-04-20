@@ -2,7 +2,34 @@ from googleapiclient.discovery import build
 import pandas as pd
 import seaborn as sns
 
-# Main function that returns final df
+#Define API keys
+api_key = 'AIzaSyCI1IHdWg8rJVabzIQ6VFGxaaytT76G5Ok'
+youtube = build(serviceName='youtube', version='v3', developerKey=api_key)  
+
+# Function to get Video ID from URL
+def get_video_id(video_url):
+    import re
+    pattern = r"(?<=v=)[\w-]+(?=&|$)|(?<=youtu.be/)[\w-]+(?=&|$|\?)"
+    match = re.search(pattern, video_url)
+    if match:
+        return match.group(0)
+    else:
+        return None
+    
+# function that fetches basic video information from youtube
+def get_video_info(url):
+    video_id = get_video_id(video_url=url)
+    request = youtube.videos().list(part = 'snippet', id = video_id)
+    response = request.execute()
+    data = dict(channel_name = response['items'][0]['snippet']['channelTitle'],
+                relese_date = response['items'][0]['snippet']['publishedAt'][:10],
+                title = response['items'][0]['snippet']['title'],
+                thumbnail = response['items'][0]['snippet']['thumbnails']['maxres']['url']
+                )
+    return data
+
+
+# Main function that returns final df of comments
 def preprocess(url):
     video_id = get_video_id(video_url=url)
     if(video_id):
@@ -20,21 +47,10 @@ def preprocess(url):
         return "Invalid URL"
 
     
-# Function to get Video ID from URL
-def get_video_id(video_url):
-    import re
-    pattern = r"(?<=v=)[\w-]+(?=&|$)|(?<=youtu.be/)[\w-]+(?=&|$|\?)"
-    match = re.search(pattern, video_url)
-    if match:
-        return match.group(0)
-    else:
-        return None
-    
+
 
 # Function that fetches Comments using youtube API
 def get_comments(video_id):    
-    api_key = 'AIzaSyCI1IHdWg8rJVabzIQ6VFGxaaytT76G5Ok'
-    youtube = build(serviceName='youtube', version='v3', developerKey=api_key)  
     comments = []
 
     # It fetches first 100 comments only
