@@ -66,8 +66,6 @@ matplotlib==3.8.0
 matplotlib-inline==0.1.6
 mdurl==0.1.0
 mistune==2.0.4
-mkl-random==1.2.4
-mkl-service==2.4.0
 munkres==1.1.4
 nbclient==0.8.0
 nbconvert==7.10.0
